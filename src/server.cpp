@@ -1,4 +1,3 @@
-#include <magic.h>
 #include <boost/program_options.hpp>
 #include <served/served.hpp>
 #include "stags.h"
@@ -53,9 +52,9 @@ int main(int argc, char const* argv[]) {
     // Create a multiplexer for handling requests
     served::multiplexer mux;
 
-    magic_t cookie = magic_open(MAGIC_MIME_TYPE);
-    BOOST_VERIFY(cookie);
-    magic_load(cookie, NULL);
+    MetaTaggerManager taggers(config);
+    taggers.registerTagger(create_text_tagger);
+    taggers.registerTagger(create_image_tagger);
 
     // GET /hello
     mux.handle("/hello")
@@ -63,33 +62,33 @@ int main(int argc, char const* argv[]) {
             res << "Hello world!";
         });
     mux.handle("/tag")
-        .post([&cookie](served::response &res, const served::request &req) {
-                rfc2046::MultiPart parts(req.header("Content-Type"), req.body());
-                Json::array v;
-                for (auto const &p: parts) {
-                    string const &body = p.body();
-                    char const *m = magic_buffer(cookie, &body[0], body.size());
-                    if (m == NULL) {
-                        LOG(error) << magic_error(cookie);
-                        m = "unknown";
+        .post([&taggers](served::response &res, const served::request &req) {
+                try {
+                    rfc2046::MultiPart parts(req.header("Content-Type"), req.body());
+                    Json::array v;
+                    Tagger *tagger = taggers.get();
+                    for (auto const &p: parts) {
+                        vector<Tag> tags;
+                        tagger->tag(p.body(), &tags);
+                        for (Tag const &t: tags) {
+                            v.push_back(Json::object{
+                                    {"type", t.type},
+                                    {"value", t.value},
+                                    {"score", t.score},
+                                    });
+                        }
                     }
-                    v.push_back(Json::object{
-                            {"size", int(body.size())},
-                            {"type", string(m)},
-                            });
+                    Json json = Json::object{{"objects", v},};
+                    res.set_body(json.dump());
                 }
-                Json json = Json::object{{"objects", v},};
-                /*
-                for (auto const &p: req.params) {
-                    cerr << p.first << ": " << p.second << endl;
+                catch (rfc2046::Exception const &e) {
+                    res.set_header("StagsErrorCode", "1");
+                    res.set_header("StagsErrorText", "failed to parse multipart data");
                 }
-                for (auto const &p: req.query) {
-                    cerr << p.first << ": " << p.second << endl;
+                catch (...) {
+                    res.set_header("StagsErrorCode", "2");
+                    res.set_header("StagsErrorText", "unknown error");
                 }
-                */
-                //cerr << endl;
-                //cerr << req.body() << endl;
-                res.set_body(json.dump());
         });
 
     string address = config.get<string>("stags.server.address", "127.0.0.1");
@@ -102,7 +101,6 @@ int main(int argc, char const* argv[]) {
     LOG(info) << "running server with " << threads << " threads.";
     server.run(threads);
 
-    magic_close(cookie);
     cleanup_logging();
 
     return (EXIT_SUCCESS);
