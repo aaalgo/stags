@@ -6,12 +6,12 @@ Author: Wei Dong (wdong@wdong.org)
 
 The goal of STagS is to experiment with the idea of a RESTful omnipotent
 tagging service: upon receiving a POSTed chunk of data from the client, the
-server will try to identify the type of data, and invoke various backends to
-generate tagging data.  Recent years have witnessed a rapid advancement in
-machine learning technologies as well as the emergence of many high quality
-open-source software for processing visual, audio, textual and other data
-types.  STagS is to integrate many of such software and provide a unified
-portal to them.
+server will try to identify the type of data, and invoke various appropriate
+backends to generate tagging data.  Recent years have witnessed a rapid
+advancement in machine learning technologies as well as the emergence of many
+high quality open-source software for processing visual, audio, textual and
+other types of non-structural data.  STagS is to integrate many of such
+software and provide a unified portal to them.
 
 More specifically, STagS produces a single huge statically linked monolithic
 Linux executable that is supposed to run on any Linux system with kernel
