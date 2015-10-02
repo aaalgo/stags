@@ -1,4 +1,4 @@
-# STagS: Simple Tagging Service
+# STagS: Singleton Tagging Service
 
 Author: Wei Dong (wdong@wdong.org)
 
