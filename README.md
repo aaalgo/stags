@@ -43,7 +43,8 @@ It's a daunting task to build this project due to the numerous dependencies,
 and running the program requires putting together pre-trained models.  At this
 stage, this project is for my own fun.  You've been warned.
 
-Email me if you want to replicate the service.
+Email me if you want to replicate the service and contribute to the
+development.
 
 # Currently Integrated Software
 
@@ -52,8 +53,9 @@ Email me if you want to replicate the service.
 - [caffe](https://github.com/BVLC/caffe) The neural network library for image recognition.
 - [MITIE](https://github.com/mit-nlp/MITIE) Text processing.
 
-# Software Planned to be Integrated
+## Software Planned to be Integrated
 
 - [Sphinx](http://cmusphinx.sourceforge.net/) Voice recognition.
 - [tesseract](https://github.com/tesseract-ocr/tesseract) OCR.
 - ...
+
