@@ -15,7 +15,7 @@ software and provide a unified portal to them.
 
 More specifically, STagS produces a single huge statically linked monolithic
 Linux executable that is supposed to run on any Linux system with kernel
-version >= 2.6 and with a X86_64 CPU.
+version >= 2.6 and with an X86_64 CPU.
 
 ## Disclaimer
 
@@ -49,7 +49,7 @@ development.
 # Currently Integrated Software
 
 - [served](https://github.com/datasift/served) C++ RESTful web server library.
-- [libmagic](https://github.com/threatstack/libmagic) Data type identifying.  Given an arbitrary chunk of data, libmagic returns the MIME type.
+- [libmagic](https://github.com/threatstack/libmagic) Data type identification.  Given an arbitrary chunk of data, libmagic returns the MIME type.
 - [caffe](https://github.com/BVLC/caffe) The neural network library for image recognition.
 - [MITIE](https://github.com/mit-nlp/MITIE) Text processing.
 
