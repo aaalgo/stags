@@ -22,11 +22,13 @@ namespace stags {
     using std::runtime_error;
     using namespace json11;
 
+    // XML configuration
     typedef boost::property_tree::ptree Config;
 
     void LoadConfig (string const &path, Config *);
     void SaveConfig (string const &path, Config const &);
-    // we allow overriding configuration options in the form of "KEY=VALUE"
+
+    // Overriding configuration options in the form of "KEY=VALUE"
     void OverrideConfig (std::vector<std::string> const &overrides, Config *);
 
     static constexpr int64_t ErrorCode_Success = 0;
@@ -81,36 +83,42 @@ namespace stags {
 
     };
 
-    // tagger interface
+    // Tagger interface
     class Tagger {
     public:
         typedef function<Tagger *(Config const&)> Constructor;
-        virtual ~Tagger() {}
+        // Returns the data type this tagger is supposed to work on.
         virtual string type () const = 0;
+        virtual ~Tagger() {}
+        // Generate tags.  The input tags vector is appended to.
         virtual void tag (string const &object, vector<Tag> *tags) = 0;
     };
 
+    // The meta tagger manages all other taggers, and selectively invoke them
+    // for different data types.
     Tagger *create_meta_tagger (Config const &, vector<Tagger::Constructor> const &);
-    Tagger *create_text_tagger (Config const &);
-    Tagger *create_image_tagger (Config const &);
-    Tagger *create_audio_tagger (Config const &);
 
+    // The server is multi-threaded and this one maintains a
+    // tagger set for each thread.
     class MetaTaggerManager {
-        Config config;
-        vector<Tagger::Constructor> cons;    // registered constructors
+        Config config;  // we need to save configuration for future creation of taggers.
+        vector<Tagger::Constructor> cons;                 // registered constructors
         unordered_map<std::thread::id, Tagger *> insts;   // instance for each thread
         std::mutex mutex;
     public:
         MetaTaggerManager (Config const &c): config(c) {
         }
+
         ~MetaTaggerManager () {
             for (auto &p: insts) {
                 delete p.second;
             }
         }
+
         void registerTagger (Tagger::Constructor const &c) {
             cons.push_back(c);
         }
+
         Tagger *get () {
             std::thread::id id = std::this_thread::get_id();
             std::lock_guard<std::mutex> lock(mutex); 
@@ -125,5 +133,9 @@ namespace stags {
             }
         }
     };
+
+    Tagger *create_text_tagger (Config const &);
+    Tagger *create_image_tagger (Config const &);
+    Tagger *create_audio_tagger (Config const &);
 }
 
