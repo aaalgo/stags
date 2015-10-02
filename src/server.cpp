@@ -6,10 +6,6 @@
 using namespace std;
 using namespace stags;
 
-class MultiPartFormData: vector<served::request> {
-public:
-};
-
 int main(int argc, char const* argv[]) {
     string config_path;
     vector<string> overrides;
@@ -91,13 +87,15 @@ int main(int argc, char const* argv[]) {
                 }
         });
 
-    string address = config.get<string>("stags.server.address", "127.0.0.1");
+    string address = config.get<string>("stags.server.address", "0.0.0.0");
     string port = config.get<string>("stags.server.port", "8080");
-    unsigned threads = config.get<unsigned>("stags.server.threads", 16);
+    size_t max_input = config.get<size_t>("stags.server.max_input", 2 * 1024 * 1024);
+    unsigned threads = config.get<unsigned>("stags.server.threads", 4);
 
     // Create the server and run with 10 handler threads.
     LOG(info) << "listening at " << address << ':' << port;
     served::net::server server(address, port, mux);
+    server.set_max_request_bytes(max_input);
     LOG(info) << "running server with " << threads << " threads.";
     server.run(threads);
 

@@ -35,9 +35,10 @@ namespace stags {
         unordered_map<string, Tagger *> taggers;
     public:
         MetaTagger (Config const &config, vector<Tagger::Constructor> const &cons) {
+            string model = config.get<string>("stags.magic.model", "models/magic");
             cookie = magic_open(MAGIC_MIME_TYPE);
             BOOST_VERIFY(cookie);
-            magic_load(cookie, NULL);
+            magic_load(cookie, model.c_str());
             for (auto const &con: cons) {
                 Tagger *ptr = con(config);
                 BOOST_VERIFY(ptr);

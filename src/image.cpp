@@ -62,8 +62,8 @@ Classifier::Classifier(const string& model_file,
   net_.reset(new Net<float>(model_file, TEST));
   net_->CopyTrainedLayersFrom(trained_file);
 
-  CHECK_EQ(net_->num_inputs(), 1) << "Network should have exactly one input.";
-  CHECK_EQ(net_->num_outputs(), 1) << "Network should have exactly one output.";
+  CHECK_EQ(net_->num_inputs(), 1) << "Network should have exactly one input." << net_->num_inputs();
+  CHECK_EQ(net_->num_outputs(), 1) << "Network should have exactly one output." << net_->num_outputs();
 
   Blob<float>* input_layer = net_->input_blobs()[0];
   num_channels_ = input_layer->channels();
