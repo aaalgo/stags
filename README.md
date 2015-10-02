@@ -52,4 +52,8 @@ Email me if you want to replicate the service.
 - [caffe](https://github.com/BVLC/caffe) The neural network library for image recognition.
 - [MITIE](https://github.com/mit-nlp/MITIE) Text processing.
 
+# Software Planned to be Integrated
 
+- [Sphinx](http://cmusphinx.sourceforge.net/) Voice recognition.
+- [tesseract](https://github.com/tesseract-ocr/tesseract) OCR.
+- ...
