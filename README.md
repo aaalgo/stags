@@ -30,7 +30,7 @@ A demo service is currently deployed, and can be invoked from commandline
 with CURL:
 
 ```bash
-curl -F "encoded_data=@text-sample.txt" -F "encoded_data=@image-sample.jpg" http://www.kgraph.org:3112/tag 
+curl -F "encoded_data=@text-sample.txt" -F "encoded_data=@image-sample.jpg" http://wdong-prod.apigee.net/stags
 ```
 
 The API can also be accessed from a program, assuming multiple data files are
