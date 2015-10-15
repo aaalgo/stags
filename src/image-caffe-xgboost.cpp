@@ -8,6 +8,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <iostream>
+#include <fstream>
 #include <boost/lexical_cast.hpp>
 #undef LOG
 #undef LOG_IF
@@ -193,6 +195,10 @@ class Caffex {
 
 namespace stags {
     using boost::lexical_cast;
+    using std::ifstream;
+    using std::cout;
+    using std::cerr;
+    using std::endl;
     class CSV: public vector<string> {
     public:
         CSV (string const &c) {
@@ -205,9 +211,6 @@ namespace stags {
                 o = p + 1;
             }
             push_back(c.substr(o));
-            for (auto const &s: *this) {
-                cout << "BLOB: " << s << endl;
-            }
         }
     };
 
@@ -220,21 +223,30 @@ namespace stags {
     public:
         ImageTagger (Config const &config)
             : model_dir(config.get<string>("stags.image.model", "models/image")),
-            CSV(config.get<string>("stags.image.blobs")),
-            xtor(model_dir, CSV)
+            blobs(config.get<string>("stags.image.blobs")),
+            xtor(model_dir, blobs)
         {
-            int r = XGBoosterCreate(NULL, 0, &cfier);
-            BOOST_VERIFY(r == 0);
-            r = XGBoosterLoadModel(cfier, (model_dir + "/boost").c_str());
-            BOOST_VERIFY(r == 0);
-            ifstream is((model_dir + "/label").c_str());
-            string l;
-            while (getline(is, l)) {
-                labels.push_back(l);
+            {
+                ifstream is((model_dir + "/label").c_str());
+                BOOST_VERIFY(is);
+                string l;
+                while (getline(is, l)) {
+                    labels.push_back(l);
+                }
+            }
+            if (0)
+            {
+                cfier = 0;
+                int r = XGBoosterCreate(NULL, 0, &cfier);
+                BOOST_VERIFY(r == 0);
+                BOOST_VERIFY(cfier);
+                r = XGBoosterLoadModel(cfier, (model_dir + "/boost").c_str());
+                BOOST_VERIFY(r == 0);
             }
         }
 
         ~ImageTagger () {
+            if (0) 
             XGBoosterFree(cfier);
         }
 
@@ -243,6 +255,8 @@ namespace stags {
         }
 
         virtual void tag (string const &object, vector<Tag> *tags) {
+            return;
+            cerr << "TAG" << endl;
             cv::Mat buffer(1, object.size(), CV_8U, const_cast<void *>(reinterpret_cast<void const *>(&object[0])));
             cv::Mat img = cv::imdecode(buffer, -1);
             if (img.empty()) return;
@@ -252,14 +266,13 @@ namespace stags {
             DMatrixHandle dmat;
             int r = XGDMatrixCreateFromMat(&ft[0], 1, ft.size(), 0, &dmat);
             bst_ulong len;
-            float *out;
+            float const *out;
             XGBoosterPredict(cfier, dmat, 0, 0, &len, &out);
             XGDMatrixFree(dmat);
             BOOST_VERIFY(len == labels.size());
             for (size_t i = 0; i < len; ++i) {
                 tags->emplace_back("OBJECT",
-                        labels[i],
-                        lexical_cast<string>(out[i]));
+                        labels[i], out[i]);
             }
         }
     };

@@ -49,7 +49,9 @@ int main(int argc, char const* argv[]) {
     served::multiplexer mux;
 
     MetaTaggerManager taggers(config);
+    /*
     taggers.registerTagger(create_text_tagger);
+    */
     taggers.registerTagger(create_image_tagger);
 
     // GET /hello
@@ -80,6 +82,10 @@ int main(int argc, char const* argv[]) {
                 catch (rfc2046::Exception const &e) {
                     res.set_header("StagsErrorCode", "1");
                     res.set_header("StagsErrorText", "failed to parse multipart data");
+                }
+                catch (std::exception const &e) {
+                    res.set_header("StagsErrorCode", "2");
+                    res.set_header("StagsErrorText", e.what());
                 }
                 catch (...) {
                     res.set_header("StagsErrorCode", "2");
