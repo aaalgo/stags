@@ -234,7 +234,6 @@ namespace stags {
                     labels.push_back(l);
                 }
             }
-            if (0)
             {
                 cfier = 0;
                 int r = XGBoosterCreate(NULL, 0, &cfier);
@@ -246,7 +245,6 @@ namespace stags {
         }
 
         ~ImageTagger () {
-            if (0) 
             XGBoosterFree(cfier);
         }
 
@@ -255,8 +253,6 @@ namespace stags {
         }
 
         virtual void tag (string const &object, vector<Tag> *tags) {
-            return;
-            cerr << "TAG" << endl;
             cv::Mat buffer(1, object.size(), CV_8U, const_cast<void *>(reinterpret_cast<void const *>(&object[0])));
             cv::Mat img = cv::imdecode(buffer, -1);
             if (img.empty()) return;
